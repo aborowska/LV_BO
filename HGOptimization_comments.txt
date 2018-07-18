@@ -1,0 +1,53 @@
+step 1: 
+* setp up Sim_DirConfigForwardComputation_HV02.m, make sure everything is there
+* I used HV25
+
+step 2: Sim_forwardSimulationLV_Ca_Cb.m
+* no explicit objective function
+* it reads:
+  using LVVolumeAba and LVVolumeMRI to formualte volume objective function 
+  using strainAbaTotal and strainMRITotal to formulate strain objective function
+ 
+
+
+* grid search?
+* both volume and strains outputted - to be matched
+* [Ca, Cb] = [0.1 0.5]
+* mean(Times) = 315 s = 5.25 min
+
+step 3: Sim_forwardSimulationLV_Ca_Cb_refineKlotz.m
+* here we will optimize the volume according to the klotz curve
+* two ABAQUS calls per iteration (for normal pressure 8 mmHg an dhigh pressure 30 mmHg)
+* optimset('Algorithm', 'sqp', 'TolFun', 1e-3, ...
+  'TolX', 0.001, 'Diffminchange', 1e-3);
+* funccount = 19 (Cumulative number of function evaluations)
+  Iteration = 5 (Iteration number — starts at 0)
+  Times =  10943 s ~ 3 h
+  Times/funccount = 576 s ~ 9.5 min
+* [Ca, Cb] = [0.922	0.770]
+
+
+step 4: Sim_forwardSimulationLV_afbf.m
+* only Af and Bf
+* x = [1.755 1.305]
+* optimset('Algorithm', 'sqp', 'TolFun', 1e-6, ...
+  'TolX', 0.000001, 'Diffminchange', 1e-4,'Diffmaxchange', 1e-3, 'MaxIter', 100);
+* funccount = 74 (Cumulative number of function evaluations)
+  Iteration = 95 (Iteration number — starts at 0)
+  Times =  12567 s ~ 3.5 h
+  Times/funccount = 170 s ~ 3 min
+
+step 5: Sim_forwardSimulationLV_ab.m
+* only A and B
+* optimset('Algorithm', 'sqp', 'TolFun', 1e-6, ...
+  TolX', 0.000001, 'Diffminchange', 1e-4, 'Diffmaxchange', 1e-3, 'MaxIter', 100);
+
+--> At no step Af, Bf, Afs and Bfs are optimised explicitly?
+
+The results from step 2 need to be manually added to step 3,
+similarly for step 4 and step 5, which can be updated, but not yet done.
+--> I added automatic updating.
+
+
+
+
